@@ -18,7 +18,7 @@ logger = Logger(__name__)
 # Header elements
 HEADER = "Header"
 PARTNER = "Partner"
-ACC_CODE = "PartnerAccountCodes"
+ACC_CODE = "PartnerAccountCode"
 CUSTOMER = "WAIT002"
 
 # Item line elements
@@ -29,10 +29,10 @@ PR_CODE = "ProductCode"
 CODE = "PartnerProductCode"
 
 
-def __is_waitrose(parent):
+def __is_waitrose(parent, file):
     try:
         header = parent.find(HEADER).find(PARTNER).find(ACC_CODE).text
-        logger.info(f"{'Matching order found' if header==CUSTOMER else 'No matching orders found for ' + header}")
+        logger.info(f"{'Matching order found - ' + file.name if header==CUSTOMER else 'No matching orders found for ' + header}")
         return header == CUSTOMER
     except Exception as e:
         logger.info(f'{__is_waitrose.__name__}. {e}')
@@ -59,7 +59,7 @@ def scan_folder(folder='.'):
             continue
         tree = et.parse(path.join(folder if folder != '.' else '', file.name))
         root = tree.getroot()[0]
-        if __is_waitrose(root):
+        if __is_waitrose(root, file):
             if __sort_children_by(root):
                 tree.write(file.name)
                 files += 1
